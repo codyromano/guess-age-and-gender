@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Predict Age and Gender</title>
+  <style>
+  * {
+    box-sizing: border-box;
+  }
+  body, html, button, textarea {
+    font-family: Avenir;
+  }
+  h1 {
+    margin: 0;
+    padding: 0;
+  }
+  main {
+    max-width: 45rem;
+    margin: 0 auto;
+    padding: 1.25rem;
+  }
+  p, button {
+    font-size: 1.25rem;
+  }
+  textarea {
+    width: 100%;
+    height: 40vh;
+    padding: 0.5rem;
+    line-height: 150%;
+    color: #222;
+    border: solid #ccc 0.1rem;
+    font-size: 1.15rem;
+  }
+  label {
+    color: cornflowerblue;
+    font-weight: bold;
+    padding: 1rem 0;
+    display: block;
+    font-size: 1.25rem;
+  }
+  .result {
+    color: cornflowerblue;
+    font-weight: bold;
+    font-size: 1.35rem;
+  }
+  a {
+    color: cornflowerblue;
+  }
+  button {
+    cursor: pointer;
+    appearance: none;
+    color: #fff;
+    background: cornflowerblue;
+    padding: 0.5rem 1.5rem;
+    margin: 1rem 0;
+    outline: none;
+    border: none;
+    font-size: 1.5rem;
+  }
+  small {
+    font-size: 70%;
+    color: #666;
+  }
+  .disclaimer {
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: solid #fef 0.1rem;
+  }
+  </style>
+</head>
+<body>
+
+<main>
+  <h1>Guess age and gender</h1>
+  <p>This experiment uses machine learning to guess
+  a user's age and gender. It's based on <a href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073791" target="_blank">an analysis</a> of 700 million social media messages.</p>
+
+  <form class="guessForm">
+    <label for="writingSample">Paste a writing sample below:</label>
+    <textarea id="sample" name="writingSample">I got the idea to start Amazon 16 years ago. I came across the fact that Web usage was growing at 2,300 percent per year. I'd never seen or heard of anything that grew that fast, and the idea of building an online bookstore with millions of titles -- something that simply couldn't exist in the physical world -- was very exciting to me. I had just turned 30 years old, and I'd been married for a year. I told my wife MacKenzie that I wanted to quit my job and go do this crazy thing that probably wouldn't work since most startups don't, and I wasn't sure what would happen after that. MacKenzie (also a Princeton grad and sitting here in the second row) told me I should go for it. As a young boy, I'd been a garage inventor. I'd invented an automatic gate closer out of cement-filled tires, a solar cooker that didn't work very well out of an umbrella and tinfoil, baking-pan alarms to entrap my siblings. I'd always wanted to be an inventor, and she wanted me to follow my passion.</textarea>
+
+    <p class="result"></p>
+
+    <button>Guess</button>
+
+    <p class="disclaimer"><small><strong>Disclaimer:</strong> Unfortunately, the dataset only includes gender labels for "Man", "Woman" or "Unknown".
+    It doesn't represent all the ways people self-identify with gender. Suggestions are based
+    on statistical analyses of a large dataset. While the correlations
+    may provide broad insights, it's hard to make
+    assumptions about a specific user.
+    </small></p>
+  </form>
+</main>
+
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+
+<script>
+$(() => {
+  const $sample = $('#sample');
+  $sample.focus();
+
+  $('.guessForm').submit(event => {
+    event.preventDefault();
+
+    const request = {
+      writingSample: $sample.val()
+    };
+
+    $.post('/guess', request, resp => {
+      resp = JSON.parse(resp);
+
+      const age = Math.round(resp.age);
+      const genderMap = {
+        '-1': 'man',
+        '1': 'woman',
+        '0': 'man or woman'
+      };
+      const gender = genderMap[resp.gender];
+      $('.result').html(`The author is most likely a ${age}-year-old who self-identifies as a ${gender}, according to an <a href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073791" target="_blank">open-vocabulary analysis</a>.`);
+    });
+  });
+});
+</script>
+
+</body>
+</html>
